@@ -15,7 +15,13 @@ export const taskService = {
     if (filters?.limit) params.append('limit', String(filters.limit));
 
     const response = await apiClient.get<ApiResponse<Task[]>>('/tasks', { params });
-    return response.data.data;
+    // Guard against non-JSON payloads (e.g. a static host serving index.html
+    // for /api/* when no proxy/rewrite exists). Never return non-arrays.
+    const data = (response.data as ApiResponse<Task[]> | undefined)?.data;
+    if (!Array.isArray(data)) {
+      throw new Error('Unexpected response from server. Please verify the backend API URL.');
+    }
+    return data;
   },
 
   /**
@@ -63,7 +69,11 @@ export const taskService = {
    */
   async getStats(): Promise<TaskStats> {
     const response = await apiClient.get<ApiResponse<TaskStats>>('/tasks/stats');
-    return response.data.data;
+    const data = (response.data as ApiResponse<TaskStats> | undefined)?.data;
+    if (!data || typeof data.total !== 'number') {
+      throw new Error('Unexpected response from server. Please verify the backend API URL.');
+    }
+    return data;
   },
 
   /**

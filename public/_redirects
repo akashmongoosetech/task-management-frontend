@@ -1,2 +1,3 @@
-/assets/*    /assets/:splat    200
-/*           /index.html       200
+# Netlify proxy: forward API calls to the Render backend so the
+# relative /api base URL keeps working in production.
+/api/*  https://task-management-backend-o4bo.onrender.com/api/:splat  200

@@ -24,11 +24,12 @@ export function useTasks() {
 
   // Calculate local stats from actual tasks list as well as fetching backend stats
   const calculateStats = (taskList: Task[]): TaskStats => {
+    const list = Array.isArray(taskList) ? taskList : [];
     return {
-      total: taskList.length,
-      pending: taskList.filter((t) => t.status === 'pending').length,
-      inProgress: taskList.filter((t) => t.status === 'in-progress').length,
-      completed: taskList.filter((t) => t.status === 'completed').length,
+      total: list.length,
+      pending: list.filter((t) => t.status === 'pending').length,
+      inProgress: list.filter((t) => t.status === 'in-progress').length,
+      completed: list.filter((t) => t.status === 'completed').length,
     };
   };
 
@@ -52,7 +53,9 @@ export function useTasks() {
         // Prevent race conditions from out-of-order responses
         if (currentSeq !== requestSeq.current) return;
 
-        setTasks(fetchedTasks);
+        // Defense in depth: state must always stay an array so renders
+        // like `tasks.length` / `tasks.map` can never crash.
+        setTasks(Array.isArray(fetchedTasks) ? fetchedTasks : []);
         if (backendStats && activeFilters.status === 'all' && activeFilters.priority === 'all' && !activeFilters.search) {
           setStats(backendStats);
         } else {

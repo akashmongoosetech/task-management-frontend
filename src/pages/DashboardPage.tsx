@@ -125,23 +125,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         filters={filters}
         onChange={updateFilters}
         onReset={resetFilters}
-        totalFilteredCount={tasks.length}
+        totalFilteredCount={(tasks ?? []).length}
       />
 
       {/* Main Task List / States */}
       <div>
-        {error && tasks.length === 0 ? (
+        {error && (tasks ?? []).length === 0 ? (
           <ErrorState message={error} onRetry={refresh} />
         ) : isLoading ? (
           <LoadingSkeleton />
-        ) : tasks.length === 0 ? (
+        ) : (tasks ?? []).length === 0 ? (
           <EmptyState
             isFiltered={hasActiveFilters}
             onAction={hasActiveFilters ? resetFilters : () => setIsCreateModalOpen(true)}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tasks.map((task) => (
+            {(tasks ?? []).map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
